@@ -57,6 +57,7 @@ def prob_part(*x,phi=0.1,alp = 0.125):
     psi=1.33
     op = np.diag([1,1,1])
     matr = [
+        #np.array([0,0,1]),
         a12(al4,th4),
         ph(0.,np.arctan(1.41)-2*psi+al4-th3-th2-th1-al1+al2+alb+ x[3],0.),
         refl1(a1),
@@ -85,6 +86,7 @@ def prob_part(*x,phi=0.1,alp = 0.125):
     mod = mod/np.linalg.norm(mod)
     #ret = np.matmul(op,ph2(phi))
     ret = np.matmul(op,mod)
+    #ret=ret.reshape(ret.shape[-1],-1)
     return ret
 
 def prob(*x,phi=0.1,alp = 0.125):
