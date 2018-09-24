@@ -1,17 +1,32 @@
 import numpy as np
 from PIL import Image
-import re, time, os
+import re, time, os, cv2
+from tqdm import tqdm
 
 def dgen(path,exp,start=0,limit = 10):
-    skipped = 0
+    skipped,ret = 0,0
     for f in list(os.listdir(path))[start:start+limit]:
-        image = Image.open(os.path.join(path,f))
         val = get_value(f,exp)
         if val:
+            image = Image.open(os.path.join(path,f))
+            ret+=1
             yield (image,val)
         else:
             skipped+=1
-    print("Returned %i, skipped %i files"%(limit-skipped,skipped))
+    print("Returned %i, skipped %i files"%(ret,skipped))
+
+def downscale_nsave(path,d,factor=0.3):
+    out = os.path.join(path,d)
+    if not os.path.exists(out): 
+        os.makedirs(out) 
+    for f in tqdm(list(os.listdir(path))):
+        f_ = os.path.join(path,f)#.replace('\\','/')
+        #print(f_)
+        image = cv2.imread(f_)
+        height, width = image.shape[:2]
+        resized_image=cv2.resize(image,(int(factor*width),int(factor*height)))
+        cv2.imwrite(os.path.join(out,f),resized_image)
+
 def pack_by_value(data):
     i,v_0= data[0]
     pack = []
@@ -40,6 +55,8 @@ def get_value(f,exp_data):
     dt = exp_data.tick
     tr = exp_data.transition_dur
     t = _parse_time(f)
+    if not t:
+        return None
     val = t//dt
     since_last_tick = t%dt
     if since_last_tick<=tr:
@@ -52,6 +69,8 @@ def _parse_time(f):
     date_props = []
     for num,_ in m:
         date_props.append(int(num))
+    if len(date_props)!=6:
+        return None
     t = time.mktime(tuple(date_props+[0,0,0]))
     #print(_unix2str(t))
     return t
