@@ -13,9 +13,10 @@ class Annealer:
         self.func = func
         self.energy = params.get('energy',3)
         self.points,self.data =points_data
-        self.cost = lambda f: np.sum(np.square(f(self.points)-self.data))
+        #self.cost = lambda f: np.sum(np.square(f(self.points)-self.data))
+        self.cost = lambda f: np.sum(np.abs(f(self.points)-self.data))
         #self.prob = lambda e,e_,t: 1/(1+np.exp(-((e-e_)*(1+5*np.heaviside(e_-e,0))/3-np.heaviside(e_-e,0)*0.01/t)))
-        self.prob = lambda e,e_,t: 1/(1+np.exp(-((e-e_)*(1+0.1*np.heaviside(e_-e,0))/self.energy-0.3/t)))
+        self.prob = lambda e,e_,t: 1/(1+np.exp(-((e-e_)*(1+0.5*np.heaviside(e_-e,0))/self.energy-0.3/t)))
 
     def opt(self,start_point,**par):
         """
