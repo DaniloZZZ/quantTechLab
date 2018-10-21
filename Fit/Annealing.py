@@ -14,23 +14,31 @@ class Annealer:
         self.energy = params.get('energy',3)
         self.points,self.data =points_data
         #self.cost = lambda f: np.sum(np.square(f(self.points)-self.data))
-        self.cost = lambda f: np.sum(np.abs(f(self.points)-self.data))
+        #self.cost = lambda f: np.sum(np.abs(f(self.points)-self.data))
+        self.cost = lambda f: np.sqrt(np.sum(np.square((f(self.points)-self.data))))
         #self.prob = lambda e,e_,t: 1/(1+np.exp(-((e-e_)*(1+5*np.heaviside(e_-e,0))/3-np.heaviside(e_-e,0)*0.01/t)))
-        self.prob = lambda e,e_,t: 1/(1+np.exp(-((e-e_)*(1+0.5*np.heaviside(e_-e,0))/self.energy-0.3/t)))
+        self.prob = self._get_prob(self.energy)
+    def _get_prob(self,energy):
+        return lambda e,e_,t: 1/(1+np.exp(-((e-e_)*(1+0.5*np.heaviside(e_-e,0))/energy-0.3/t)))
 
-    def opt(self,start_point,**par):
+    def opt(self,start_point,energy=None,**par):
         """
         max_steps: maximum iteration count. :def:1000
         scales: a list of scales for every dimension. :def:np.ones(len(start_point))
         """
+        if energy:
+            self.energy = energy
+            self.prob = self._get_prob(energy)
         dim = len(start_point)
         scales =par.get('scales',np.ones(dim))
         p = start_point
         temp = 10
         self.dots=[]
-        self.costs,self.probs=[],[]
+        f = carr(self.func,p)
+        v = self.cost(f)
+        self.costs,self.probs=[v],[]
         self.best = p
-        vmin=10000
+        vmin=v
         steps = par.get('max_steps',20000)
         for i in tqdm(range(steps)):
             temp = steps/(i+1)-0.9999
