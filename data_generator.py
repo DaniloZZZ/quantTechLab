@@ -8,7 +8,8 @@ def dgen(path,exp,start=0,limit = 10):
     for f in list(os.listdir(path))[start:start+limit]:
         val = get_value(f,exp)
         if val:
-            image = Image.open(os.path.join(path,f))
+            with Image.open(os.path.join(path,f)) as im:
+                image=im
             ret+=1
             yield (image,val)
         else:
