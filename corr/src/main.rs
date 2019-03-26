@@ -4,16 +4,15 @@ use std::io::{BufRead, BufReader};
 use std::fs::File;
 use std::collections::VecDeque;
 
-fn sum_a_file(filename:&String) -> std::io::Result<i32> {
-    let mut file = File::open(filename).unwrap();
-    const corr_len: usize = 70;
+fn sum_a_file(filename:&String, corr_len:usize) -> std::io::Result<i32> {
+    let file = File::open(filename).unwrap();
 
     let mut sum : i128 = 0;
     let mut buf : VecDeque<i128> = VecDeque::new();
     for _ in 1..corr_len {
         buf.push_front(0);
     }
-    let mut corr: [i128; corr_len] = [0; corr_len];
+    let mut corr = vec![0; corr_len];
     
     let mut reader = BufReader::new(file);
     let mut line = String::new();
@@ -38,9 +37,6 @@ fn sum_a_file(filename:&String) -> std::io::Result<i32> {
                 let mut n = n as i128;
                 if n>10000{
                     continue
-                }
-                if iter%10!=0{
-                    continue;
                 }
                 if n==12{
                     n=0;
@@ -94,8 +90,11 @@ fn main() {
     match args.get(1) {
         None => println!("Please provide a filename"),
         Some(f)=> {
+            let ten = String::from("10");
+            let l = args.get(2).unwrap_or(&ten);
+            let cl  =l.parse::<usize>().unwrap();
             println!("Reading file {}", f);
-            let res = sum_a_file(f);
+            let res = sum_a_file(f,cl);
             match res{
                 Ok(_) => println!("Done."),
                 Err(_) => println!("Exited with error")
