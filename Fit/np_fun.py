@@ -3,9 +3,10 @@ import numpy as np
 T = 0.445
 t = np.sqrt(T)
 r = np.sqrt(1-T)
-a = 2.07
-b = 2.19
-c = 3.01
+a = np.sqrt(T*(1-T))
+b = np.sqrt(1-T)
+c = np.sqrt(T)
+
 def a01(al=np.pi, thet=0):
     return np.exp(1j*thet)*\
     np.array(
@@ -80,6 +81,9 @@ def prob_part(*x,phi=0.1,alp = 0.125):
         ph(0,0,-al1-psi+ala+thb+alb+x[0]),
         refl2(a1),
         ph(0,ala+thb+alb,psi),
+        refl2(g3),
+        refl2(g2),
+        refl1(g1),
 
         ph2(phi),
     ]
