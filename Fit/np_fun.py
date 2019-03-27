@@ -1,11 +1,11 @@
 import numpy as np
 
-T = 0.6
+T = 0.445
 t = np.sqrt(T)
 r = np.sqrt(1-T)
-a = 33
-b = 39
-c = 39
+a = 2.07
+b = 2.19
+c = 3.01
 def a01(al=np.pi, thet=0):
     return np.exp(1j*thet)*\
     np.array(
@@ -30,7 +30,7 @@ def a02(al=np.pi, thet=0):
     return np.exp(1j*thet)*\
     np.array(
 	[
-	[t, 0, -r*np.exp(-1j*al)],
+	[t, 0, r*np.exp(1j*al)],
 	[0, np.exp(-1j*thet), 0],
 	[-r*np.exp(-1j*al), 0, t]
 	]
@@ -38,6 +38,7 @@ def a02(al=np.pi, thet=0):
 
 def ph(a,b,c):
     return np.diag(np.exp(1j*np.array([a,b,c])))
+
 def ph2(phi):
     if not isinstance(phi,np.ndarray):
         return ph(0,phi,2*phi)
@@ -51,6 +52,9 @@ def refl1(k):
     return np.diag([1,np.sqrt(1-k),1])
 def refl2(k):
     return np.diag([1,1,np.sqrt(1-k)])
+
+def device_function(x,phi):
+    return np.abs(np.square(prob_part(*x,phi=phi)))
 
 def prob_part(*x,phi=0.1,alp = 0.125):
     a1,al1,al2,al3,al4,ala,alb,th1,th2,th3,th4,thb = 0.125,0,np.pi,0,np.pi,np.pi,np.pi,0,0,0,0,0
@@ -86,6 +90,7 @@ def prob_part(*x,phi=0.1,alp = 0.125):
     mod = mod/np.linalg.norm(mod)
     #ret = np.matmul(op,ph2(phi))
     ret = np.matmul(op,mod)
+
     #ret=ret.reshape(ret.shape[-1],-1)
     return ret
 
