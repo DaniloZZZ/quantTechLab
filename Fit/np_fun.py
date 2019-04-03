@@ -3,10 +3,10 @@ import numpy as np
 T = 0.445
 t = np.sqrt(T)
 r = np.sqrt(1-T)
+
 a = np.sqrt(T*(1-T))
-b = np.sqrt(1-T)
+b = (1-T)
 c = np.sqrt(T)
-a = b = c = 1
 
 def a01(al=np.pi, thet=0):
     return np.exp(1j*thet)*\
@@ -59,9 +59,9 @@ def device_function(x,phi):
     return np.abs(np.square(prob_part(*x,phi=phi)))
 
 def prob_part(*x,phi=0.1,alp = 0.125):
-    a1 = 0.
+    a1 = 0.125
     asq2 = np.arctan(np.sqrt(2))
-    g1,g2,g3 = np.sqrt(1-0.15), np.sqrt( 1-0.2), np.sqrt(1-0.28)
+    g1,g2,g3 = 0.15, 0.2, 0.28
     op = np.diag([1,1,1])
     matr = [
         #np.array([0,0,1]),
@@ -80,11 +80,11 @@ def prob_part(*x,phi=0.1,alp = 0.125):
         a12(np.pi/2, 0),
         ph(0, 0, np.pi*3/2 + x[0]),
         refl2(a1),
-        #refl2(g3),
-        #refl2(g2),
-        #refl1(g1),
-
         ph2(phi),
+        refl2(g3),
+        refl2(g2),
+        refl1(g1),
+
     ]
     for m in matr:
         op = np.matmul(op,m)
