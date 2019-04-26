@@ -7,6 +7,7 @@ r = np.sqrt(1-T)
 a = np.sqrt(T*(1-T))
 b = (1-T)
 c = np.sqrt(T)
+#a = b = c =1
 
 def a01(al=np.pi, thet=0):
     return np.exp(1j*thet)*\
