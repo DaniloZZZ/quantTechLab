@@ -88,7 +88,7 @@ handmade_exp = {
 		'exp_params' : {
 			'scaling_channels':[3,2,500],
 			'min_amp_per':[0,10,300/4],
-			'start_end_index':[-160,-10],
+                'start_end_index':[-120,-10],
 			}
 		},
 	}
@@ -98,6 +98,8 @@ def read_data_params(exp):
 
     raw_data = data_read(fnames)
     data = data_preprocess(raw_data,params)
+    check_time_shift(data)
+
     print(">> Read %i channels with lengths %i"%(len(data),len(data[0])))
     return data
 
