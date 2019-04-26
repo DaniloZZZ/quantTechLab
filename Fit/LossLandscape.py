@@ -22,6 +22,6 @@ def LossLandscape(function, points, dots = 30,scale=1,figsize=(10,10)):
 
     plt.figure(figsize=figsize)
     t = t.reshape(-1)
-    plt.contourf(t,t,values,80)
+    plt.contourf(t,t,values,40, cmap='inferno')
     return grid, values
 

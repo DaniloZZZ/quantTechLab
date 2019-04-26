@@ -1,9 +1,9 @@
 
 from matplotlib import pyplot as plt
-from matplotlib import cm
+from matplotlib import cm, ticker
 import numpy as np
 
-sampl = lambda f,fm=0,to=10,cnt=100: [np.linspace(fm,to,cnt),list(map(f,np.linspace(fm,to,cnt)))]
+sampl = lambda f,fm=0,to=10,cnt=100: [np.linspace(fm,to,cnt),(f(np.linspace(fm,to,cnt)))]
 
 def set_fonts_ticks(fig,ax):
     fontsize =14
@@ -17,7 +17,12 @@ def set_fonts_ticks(fig,ax):
     tick_width =1
     ax.tick_params(axis="y",direction="in",labelsize=13,width=tick_width,length=8)
     ax.tick_params(axis="x",direction="in",labelsize=13,width=tick_width, length=8)
-
+    ax.grid(linestyle='--',color='lightgray')
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(
+       lambda val,pos: '{:.0g}$\pi$'.format(val/np.pi) if val !=0 else '0'
+    ))
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(base=1*np.pi))
+    
 def plot3(func=None, data=None, on_same=False):
     if func:
         if data:
@@ -25,7 +30,7 @@ def plot3(func=None, data=None, on_same=False):
         else:
             domain_used = np.linspace(0,12,200)
         domain, func_vals = sampl(func,domain_used[0],domain_used[-1],200)
-        func_vals = np.array(func_vals).T
+        func_vals = np.array(func_vals)
 
     figsize=(16,4)
     if on_same:
@@ -33,7 +38,7 @@ def plot3(func=None, data=None, on_same=False):
         ax =[plt,plt,plt]
         f = plt
     else:
-        f,ax = plt.subplots(1,3,figsize=figsize,sharey=True)
+        f,ax = plt.subplots(1,3,figsize=figsize,sharey=False)
     colors  = ['blue','red','green']
     colors  = [cm.brg(i) for i in np.linspace(0,1,3)]
 
