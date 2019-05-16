@@ -7,6 +7,8 @@ import math
 class gauss_est:
     def __init__(self, h):
         self.h = h
+        self.mu = []
+        self.sigma = []
     
     def get_koef(self, phi, X, Y):
         sigma = 0
@@ -19,20 +21,21 @@ class gauss_est:
     
     def learning_proces(self, X, Y):
         self.phis = np.linspace(0, 2*3.1415, math.floor(3.1415/self.h))
-        mu = np.zeros(len(phis))
+        mu = np.zeros(len(self.phis))
         sigma = np.zeros(len(self.phis))
         for i in range(len(self.phis)):
-            mu[i] , sigma[i] = self.get_koef(self.phis[i], h, X, Y)
+            mu[i] , sigma[i] = self.get_koef(self.phis[i], X, Y)
         return mu, sigma
     
     def count_metrics(self, mu, sigma, Y):
         r = 0
         for i in range(len(Y)):
-            r -= (y[i]-mu[i])**2/2/sigma[i].sum()
+            r -= ((Y[i]-mu[i])**2/2/sigma[i]).sum()
         return r
     
     def make_prediction(self, Y):
         ans = 0
+
         prob = self.count_metrics(np.array([self.mu[i][0] for i in range(len(self.mu))]), np.array([self.sigma[i][0] for i in range(len(self.sigma))]), Y)
         for j in range(len(self.phis)):
             a = self.count_metrics(np.array([self.mu[i][j] for i in range(len(self.mu))]), np.array([self.sigma[i][j] for i in range(len(self.sigma))]), Y)
@@ -45,10 +48,8 @@ class gauss_est:
     
     
     def fit(self, X, Y):
-        self.mu = []
-        self.sigma = []
-        for i in range(X):
-            mu_1, sigma_1 = self.learning_proces(self, X[i], Y[i])
+        for j in range(len(X)):
+            mu_1, sigma_1 = self.learning_proces(X[j], Y[j])
             self.mu.append(mu_1)
             self.sigma.append(sigma_1)
             
