@@ -1,7 +1,8 @@
-#import multiprocessing.dummy as thr
-import multiprocessing as thr
+import multiprocessing.dummy as thr
+#[[import multiprocessing as thr
 import cv2
-
+import time
+import queue
 
 def camPreview(previewName,cam):
     cv2.namedWindow(previewName)
@@ -21,8 +22,6 @@ def camPreview(previewName,cam):
 def read_once(cam):
     if cam.isOpened():  # try to get the first frame
         rval, frame = cam.read()
-    else:
-        rval = False
     if rval:
         return frame
 
@@ -33,6 +32,7 @@ class Camera:
         else:
             self.name = name
         self.number = number
+        self.buffer = queue.Queue()
 
     def open(self):
         self.cam = cv2.VideoCapture(self.number)
@@ -44,12 +44,24 @@ class Camera:
         else:
             print("calling camera on already closed")
 
+    def listen_open(self):
+        while True:
+            print("trying to open", self.name)
+            self.open()
+            if self.cam.isOpened():
+                return
+            time.sleep(1)
+
     def loop(self):
-        self.open()
-        frame = read_once(self.cam)
-        print(frame)
-        #camPreview(self.name,self.cam)
+        self.listen_open()
+        while True:
+            frame = read_once(self.cam)
+            if frame is None:
+                self.listen_open()
+            else:
+                self.buffer.put(frame)
         self.close()
+
     def start(self):
         p = thr.Process( target =self.loop, args = ())
         p.start()
@@ -61,8 +73,22 @@ def start_cameras(idxs):
     for p in procs:
         p.join()
 
+def get_cameras():
+    arr = []
+    for index in range(10):
+        print(index)
+        cap = cv2.VideoCapture(index)
+        if not cap.read()[0]:
+            continue
+        else:
+            arr.append(index)
+        cap.release()
+    return arr
+
 def main():
-    start_cameras([0,2])
+    camsid = get_cameras()
+    print(camsid)
+    start_cameras(camsid)
 
 if __name__=="__main__":
     main()
