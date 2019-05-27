@@ -67,9 +67,7 @@ class Camera:
             if frame is None:
                 self.listen_open()
             else:
-                print("put...")
                 self.buffer.put(frame)
-                print("put!")
         self.close()
 
     def start(self):
