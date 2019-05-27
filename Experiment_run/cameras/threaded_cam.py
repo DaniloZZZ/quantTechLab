@@ -26,16 +26,23 @@ def read_once(cam):
         return frame
 
 class Camera:
-    def __init__(self, number, name=None):
+    def __init__(self, number, name=None, buf_size=3):
         if not name:
             self.name = "Camera"+str(number)
         else:
             self.name = name
         self.number = number
-        self.buffer = queue.Queue()
+        self.buffer = queue.Queue(buf_size)
 
     def open(self):
         self.cam = cv2.VideoCapture(self.number)
+        if not self.cam.isOpened():
+            print("Failed to init")
+        self.cam.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
+        # 10 was found to be the smallest value
+        self.cam.set(cv2.CAP_PROP_EXPOSURE, 10)
+        print("Param::auto exp?",self.cam.get(cv2.CAP_PROP_AUTO_EXPOSURE))
+        print("Param::exp time", self.cam.get(cv2.CAP_PROP_EXPOSURE))
 
     def close(self):
         if self.cam:
@@ -49,6 +56,7 @@ class Camera:
             print("trying to open", self.name)
             self.open()
             if self.cam.isOpened():
+                print("Opened",self.name)
                 return
             time.sleep(1)
 
@@ -59,7 +67,9 @@ class Camera:
             if frame is None:
                 self.listen_open()
             else:
+                print("put...")
                 self.buffer.put(frame)
+                print("put!")
         self.close()
 
     def start(self):
