@@ -38,9 +38,9 @@ class Camera:
         self.cam = cv2.VideoCapture(self.number)
         if not self.cam.isOpened():
             print("Failed to init")
-        self.cam.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
+        self.cam.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
         # 10 was found to be the smallest value
-        self.cam.set(cv2.CAP_PROP_EXPOSURE, 10)
+        self.cam.set(cv2.CAP_PROP_EXPOSURE, 0.005)
         print("Param::auto exp?",self.cam.get(cv2.CAP_PROP_AUTO_EXPOSURE))
         print("Param::exp time", self.cam.get(cv2.CAP_PROP_EXPOSURE))
 
