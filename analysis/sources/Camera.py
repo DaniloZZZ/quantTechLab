@@ -24,7 +24,6 @@ def queue_put(gen, q, **kw):
         q.put(i,**kw)
 
 def queue_source(q, **kw):
-    n=0
     while True:
         try:
             yield q.get(**kw)

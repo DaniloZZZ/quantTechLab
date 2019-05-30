@@ -29,10 +29,12 @@ def data_generator(source,exp):
             skipped+=1
     print("DataGen returned %i, skipped %i files"%(ret,skipped))
 
-def resize_tuple(data,factor=0.3):
-    datagen = (i for i in data)
-    for  d in datagen:
-        yield (resize(d[0],factor), d[1:])
+def resize_gen(gen, factor=0.3):
+    for d in gen:
+        if d is None:
+            yield d
+            continue
+        yield resize(d,factor)
 
 def resize(imdata,factor=0.3):
     image = imdata
