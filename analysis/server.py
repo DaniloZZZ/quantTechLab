@@ -13,7 +13,7 @@ class MyServer(BaseHTTPRequestHandler):
         self.end_headers()
     def do_GET(self):
         global VAL
-        print('path', self.path)
+        #print('path', self.path)
         portion = self.path[1:]
         try:
             d = float(portion)
@@ -23,6 +23,8 @@ class MyServer(BaseHTTPRequestHandler):
         except ValueError:
             print("fail", self.path)
             self.send_response(400)
+    def log_message(*a,**k):
+        pass
 
 def bind(val):
     global VAL

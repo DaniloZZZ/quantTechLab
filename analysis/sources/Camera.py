@@ -1,5 +1,5 @@
 from queue import LifoQueue as Queue
-import queue
+import queue, time
 from multiprocessing import dummy as thr
 
 def Camera_source(cam):
@@ -9,7 +9,11 @@ def Camera_source(cam):
     n = 0
     while True:
         if cam.isOpened():
-            ret, frame = cam.read()
+            try:
+                ret, frame = cam.read()
+            except Exception as e:
+                print(str(e))
+                time.sleep(0.1)
             if ret:
                 yield frame
             else:
