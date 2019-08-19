@@ -2,7 +2,8 @@
 import numpy as np
 import matplotlib
 import math
-
+import os
+import imageio
 
 class gauss_est:
    
@@ -78,8 +79,9 @@ class gauss_est:
     
     
     def min_max(self, lst):
-        e = np.array(lst)
-        return e.max(), e.min()
+        e = np.array([item.max() for item in lst])
+        i = np.array([item.min() for item in lst])
+        return e.max(), i.min()
     
     def fit(self, X, Y):
         self.mu = []
@@ -121,7 +123,207 @@ class gauss_est:
     
     
     
+class data_from_dataset():
+    def __init__(self, dataset):
+        self.intensities = np.array([i.mean() for i in dataset.images])
+        self.target = dataset.target
+    def get(self):
+        return self.target, self.intensities    
     
+    
+    
+    
+    
+class dataset_from_folder():
+    def __init__(self, paths):
+        
+        self.paths = paths
+       
+    def get(self):
+        itensities = []
+        phases = []
+        for path in self.paths:
+            images, target = self.get_image_target(path)
+            intensity = np.array([item.mean() for item in images])
+            itensities.append(intensity)
+            phases.append(target)
+        return np.array(phases), np.array(itensities)
+
+    
+    def get_items(self,target, images, idx):
+        a = target[idx]
+        b = 0
+        cnt = 0
+        while idx+cnt < len(target) and target[idx+cnt] == a :
+            b += images[idx+cnt]
+            cnt += 1
+        b = b/cnt
+        return a, b, idx+cnt
+    
+    def get_average_data(self, target, images):
+        new_target = []
+        new_images = []
+        idx = 0
+        while idx < len(target):
+            a, b, idx = self.get_items(target, images, idx)
+            new_target.append(a)
+            new_images.append(b)
+        return np.array(new_target), np.array(new_images)
+    
+    def get_image_target(self, path):
+            names = os.listdir(path)
+            need = lambda x: ".png" in x
+            names = list(filter(need, names))
+            names.sort(key= lambda x: int(x.split("_")[0]))
+            images = []
+            target = []
+            for item in names:
+                images.append(np.array(imageio.imread(str(path/item))))
+                target.append(float(item.split("_")[1]))
+            images = np.array(images)
+            target = np.array(target)
+            return images, target
+            
+            
+    def split(self,start = 0, end = 1,shuffle = False, test_size = 0.2, filtered = None):
+        self.names = []
+        self.filtered = filtered
+        for path in self.paths:
+            self.names.append(self.get_names(path))
+        
+        self.names = np.array(self.names)
+        train_names = []
+        test_names = []
+        
+        for item in self.names:
+            train, test = self.split_names(item, start = start, end = end, shuffle = shuffle, test_size = test_size)
+            train_names.append(train)
+            test_names.append(test)
+        train_dataset = self.Generata_data(self.paths, train_names, filtered = self.filtered)
+        test_dataset = self.Generata_data(self.paths, test_names, filtered = self.filtered, test = True)
+        return train_dataset, test_dataset
+        
+        
+    def get_names(self,path):
+        names = os.listdir(path)
+        
+        need = lambda x: ".png" in x
+        names = list(filter(need, names))
+        
+        names.sort(key= lambda x: int(x.split("_")[0]))
+       
+        return names
+    def split_names(self, names, shuffle = False, test_size = 0.2, start = 0, end = 1):
+        names = np.array(names)
+        idx = np.linspace(start*(len(names)-1),end*(len(names)-1), len(names), dtype = int)
+        if shuffle:
+            random.shuffle(idx)
+        
+        return names[idx[:int((1-test_size)*len(idx))]], names[idx[:int((test_size)*len(idx))]]
+    
+    def Generata_data(self,paths, names, filtered = None, test = False):
+        if test:
+            new_names = []
+            for item in names:
+                k = 0
+        
+                for i in range(len(item)):
+                    if item[i+1].split("_")[1] < item[i].split("_")[1]:
+                        k = i
+                        break
+
+                item = item[k+1:]
+                for i in range(len(item)-1, 0, -1):
+                    if item[i-1].split("_")[1] > item[i].split("_")[1]:
+                        k = i
+                        break
+
+                item = item[:k-1]
+                new_names.append(item)
+            names = np.array(new_names)
+         
+        target = []
+        inten = []
+        for path, name in zip(paths, names):
+            target0, inten0 = self.get_inten_of_images(name, path, filtered = filtered)
+            target.append(target0)
+            inten.append(inten0)
+            
+        
+        
+        if test:
+            i = 0
+            for target0, inten0 in zip(target, inten):
+                target[i], inten[i] = self.get_average_data(target0, inten0)
+                i += 1
+            
+            
+            new_target = self.make_final_target(target)
+            new_inten = np.zeros((len(new_target), len(target)))
+            idxs = np.zeros(len(target), dtype = int)
+            for i, phase in enumerate(new_target):
+                im, idxs = self.join_images(target, inten, idxs, phase)
+                new_inten[i] = im
+            target = new_target
+            inten = np.array(new_inten).T
+        
+        target = np.array(target)
+        inten = np.array(inten)
+        return [target, inten]
+                              
+                              
+                              
+                              
+    def get_inten_of_images(self, names, path, filtered = None):
+        images = []
+        target = []
+        for item in names:
+            images.append(np.array(imageio.imread(str(path/item))))
+            target.append(float(item.split("_")[1]))
+        images = np.array(images)
+        target = np.array(target)
+        
+        # filter the images
+        if filtered:
+            images = images[filtered(target)]
+            target = target[filtered(target)]
+        inten = np.array([item.mean() for item in images])
+        return target, inten
+                                  
+                                  
+    def make_final_target(self, target):
+        minimum = np.array([item[0] for item in target]).min()
+        lenths = np.array([len(item) for item in target]).min()
+        result = np.array(target[np.where(lenths == lenths.min())[0][0]])
+        result = result[np.where(result == minimum)[0][0]:]
+        return result
+                                 
+                                 
+    def get_average_data(self, target, images):
+        new_target = []
+        new_images = []
+        idx = 0
+        while idx < len(target):
+            a, b, idx = self.get_items(target, images, idx)
+            new_target.append(a)
+            new_images.append(b)
+        return np.array(new_target), np.array(new_images)
+    
+    def join_images(self, target, inten, idxs, phase):
+        result = []
+        for i, item in enumerate(target):
+            while True:
+                if idxs[i] >= len(item):
+                    idxs[i] = 0
+
+                if item[idxs[i]] != phase:
+                    idxs[i] += 1
+                else:
+                    break
+            result.append(inten[i][idxs[i]])
+        result = np.array(result).flatten()
+
+        return result, idxs
     
 class preprocessing:
     def __init__(self):
