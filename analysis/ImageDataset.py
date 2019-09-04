@@ -11,8 +11,8 @@ import random
 
 
 class train_test_split():
-    def __init__(self, folder,
-                 filtered = None, transform = None, pca = None):
+    def __init__(self, folder = None,
+                 filtered = None, transform = None, pca = None, paths = None):
         """
         pca: get module PCA(N_components).
         
@@ -22,7 +22,7 @@ class train_test_split():
         self.filtered = filtered
         self.pca = pca
         self.folder = Path(folder)
-        self.names = os.listdir(self.folder)[:-1]
+        self.names = os.listdir(self.folder)
         need = lambda x: ".png" in x
         self.names = list(filter(need, self.names))
         self.names.sort(key= lambda x: int(x.split("_")[0]))
@@ -30,7 +30,7 @@ class train_test_split():
     def get(self, start = 0, end = 1, shuffle = False, test_size = 0.2):
         self.names = self.names[int(start*len(self.names)):int(end*len(self.names))]  
         if shuffle:
-            random.shuflle(self.names)
+            random.shuffle(self.names)
         train_names = self.names[:int((1-test_size)*len(self.names))]
         test_names = self.names[int((1-test_size)*len(self.names)):]
         train_dataset = FolderImageDataset(self.folder, filtered = self.filtered, 
@@ -39,8 +39,8 @@ class train_test_split():
                                           transform = self.transform, names = test_names)
         if self.pca:
                 self.pca.fit(self.data_transform(train_dataset))
-                train_dataset.images = self.pca.transform(self.data_transform(train_dataset))
-                test_dataset.images = self.pca.transform(self.data_transform(test_dataset))
+                train_dataset.images = np.array(self.pca.transform(self.data_transform(train_dataset)), dtype = float)
+                test_dataset.images = np.array(self.pca.transform(self.data_transform(test_dataset)), dtype = float)
         return train_dataset, test_dataset
     
     
@@ -76,6 +76,7 @@ class FolderImageDataset(Dataset):
             self.names = os.listdir(self.folder)[:-1]
             need = lambda x: ".png" in x
             self.names = list(filter(need, self.names))
+            self.names.sort(key= lambda x: int(x.split("_")[0]))
         #! TODO: adapt to new parameter interface
 #         size = end-start
 #         start = end==1
@@ -112,7 +113,7 @@ class FolderImageDataset(Dataset):
             y_true = torch.tensor(y_true, dtype=torch.float)
             y_true = y_true.view(-1,)
         else:
-            np_img = torch.tensor(np_img)
+            np_img = torch.tensor(np_img, dtype = torch.float)
             y_true = torch.tensor(y_true, dtype=torch.float)
             y_true = y_true.view(-1,)
         return np_img, y_true
