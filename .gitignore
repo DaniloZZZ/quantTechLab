@@ -8,6 +8,8 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+cross_validation/
+"cross_validation -- копия"/
 build/
 develop-eggs/
 dist/
