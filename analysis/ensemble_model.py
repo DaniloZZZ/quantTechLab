@@ -26,6 +26,8 @@ import xgboost as xgb
 
 
 
+    
+    
 class ImageDataset(Dataset):
     def __init__(self):
         
@@ -173,7 +175,7 @@ class ensemble_models():
                 model.fit(target, inten)
                 self.models.append(model)
             end_time = time.time()
-            print("Finished classical fitting:\n It took {:.3f} seconds\n".format(end_time - start_time))
+            print("Finished classical fitting:\n It took " + self.get_time(end_time - start_time) + "\n")
     
     
     
@@ -184,8 +186,8 @@ class ensemble_models():
             self.Batches = []
             for o in range(self.n_neural):
                 
-                print("Starting train {} model\n".format(o))
-                
+                print("Starting train {} model\n".format(o+1))
+                start_time_1 = time.time()
                 dataset, N = self.get_part_of_dataset(net_data, "net")
                 
                 
@@ -213,10 +215,11 @@ class ensemble_models():
                         print("BATCH = {} \t lr = {} \t epoches = {} \t N = {}\n".format(BATCH, lr, epoches, N))
                     
                 self.models.append(model)
-                print("-----------------------------\n")
-                print("Finished train {} model\n".format(o))
+                end_time_1 = time.time()
+                print("---------------------------------------------\n")
+                print("Finished train {} model. It took ".format(o+1) + self.get_time(end_time_1 - start_time_1) + "\n")
             end_time = time.time()
-            print("Finished machine learning:\n It took {:.3f} seconds\n".format(end_time - start_time))
+            print("Finished machine learning:\n It took " + self.get_time(end_time - start_time) + "\n")
             
             
             
@@ -243,7 +246,7 @@ class ensemble_models():
                 self.models.append(estimator)
                 
             end_time = time.time()
-            print("Finished Random forest and XGBOOST:\n It took {:.3f} seconds\n".format(end_time - start_time))
+            print("Finished Random forest and XGBOOST:\n It took " + self.get_time(end_time - start_time) + "\n")
             
                 
                 
@@ -345,8 +348,8 @@ class ensemble_models():
 
         self.idxes.append(idx2)
         N = len(idx2)
-        print(result_data.target.shape)
-        print(result_data.images.shape)
+#         print(result_data.target.shape)
+#         print(result_data.images.shape)
         return result_data, N
                 
                 
@@ -370,8 +373,15 @@ class ensemble_models():
                 
                 
                 
-                
-        
+    def get_time(self, time):
+        s = "'"+ str(int(time*100) % 100)
+        s = str(int(time) % 60) + s
+        time = int(time) // 60
+        while time != 0:
+            s = str(time % 60) + ":" + s
+            time = time // 60
+        return s             
+
         
         
         
