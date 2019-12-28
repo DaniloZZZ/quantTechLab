@@ -255,7 +255,7 @@ class ensemble_models():
                 
       
     
-    def predict(self, classic_data = None, net_data = None, method = "mean"):
+    def predict(self, classic_data = None, net_data = None, method = "mean", h = 0.0005):
         prediction = []
         for i in range(self.n_classics):
             X_predicted,_, prob_result = self.models[i].predict(classic_data)
@@ -288,7 +288,7 @@ class ensemble_models():
             
             
             
-        return prediction, self.make_prediction(prediction, method = method)
+        return prediction, self.make_prediction(prediction, method = method, h = h)
                 
     
     
@@ -354,7 +354,7 @@ class ensemble_models():
                 
                 
             
-    def make_prediction(self, prediction, method = "mean"):
+    def make_prediction(self, prediction, method = "mean", h = 0.0005):
         final = np.zeros(len(prediction[0]))
         prediction = np.array(prediction)
         size = len(prediction[0])
@@ -364,7 +364,7 @@ class ensemble_models():
                 final[i] = self.clear_ans(prediction[i])
         if method == "cluster":      
             for i, vec in enumerate(prediction):
-                ms = MeanShift(bandwidth=0.0005)
+                ms = MeanShift(bandwidth=h)
                 sam = vec.reshape(-1, 1)
                 ms.fit(sam)
                 a = ms.predict(sam)
