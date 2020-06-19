@@ -51,6 +51,7 @@ class gauss_est:
     def count_metrics(self, mu, sigma, Y):
         r = 0
         for i in range(len(Y)):
+#             r -= ((Y[i]-mu[i])**2/2).sum()
             r -= ((Y[i]-mu[i])**2/2/sigma[i]).sum()
         return r
     

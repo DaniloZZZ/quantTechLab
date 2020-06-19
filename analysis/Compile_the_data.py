@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import imageio
+from tqdm.autonotebook import tqdm
 
 class dataset_for_classic():
     def __init__(self, paths):
@@ -244,7 +245,7 @@ class train_test_for_pca_and_classic():
         train_names = []
         test_names = []
         
-        for item in self.names:
+        for item in tqdm(self.names):
             train, test = self.split(item, start = start, end = end, shuffle = shuffle, test_size = test_size)
             train_names.append(train)
             test_names.append(test)
@@ -332,7 +333,7 @@ class FolderImageDataset(Dataset):
             index = None
             self.pcas = []
         
-        for path, names in zip(self.paths, self.names):
+        for path, names in tqdm(zip(self.paths, self.names)):
             target, images, inten,  pca_0 = self.get_pca_of_images(self.N_COMPONENTS, names, path, filtered = filtered, pca = index)
             self.target.append(target)
             self.images.append(images)
@@ -348,13 +349,13 @@ class FolderImageDataset(Dataset):
         new_images = np.zeros((len(new_target), len(self.target)*self.N_COMPONENTS))
         new_inten = np.zeros((len(new_target), len(self.target)))
         idxs = np.zeros(len(self.target), dtype = int)
-        for i, phase in enumerate(new_target):
+        for i, phase in enumerate(tqdm(new_target)):
             im, idxs = self.join_images(self.target, self.images, idxs, phase)
             new_images[i] = im
             
             
         idxs = np.zeros(len(self.target), dtype = int)    
-        for i, phase in enumerate(new_target):
+        for i, phase in enumerate(tqdm(new_target)):
             im, idxs = self.join_images_inten(self.target, self.inten, idxs, phase)
             new_inten[i] = im
         self.target = new_target
@@ -441,6 +442,8 @@ class FolderImageDataset(Dataset):
                     idxs[i] = 0
                 
                 if item[idxs[i]] != phase:
+#                     print(item[idxs[i]])
+#                     print(phase)
                     idxs[i] += 1
                 else:
                     break
@@ -453,7 +456,7 @@ class FolderImageDataset(Dataset):
     
     
     def make_final_target(self, target):
-        minimum = np.array([item[0] for item in target]).min()
+        minimum = np.array([item[0] for item in target]).max()
         lenths = np.array([len(item) for item in target]).min()
         result = np.array(target[np.where(lenths == lenths.min())[0][0]])
         result = result[np.where(result == minimum)[0][0]:]
