@@ -23,7 +23,7 @@ import sklearn
 from sklearn import tree
 from sklearn import ensemble
 import xgboost as xgb
-from sklearn.cluster import MeanShift
+
 
 
     
@@ -175,7 +175,7 @@ class ensemble_models():
                 model.fit(target, inten)
                 self.models.append(model)
             end_time = time.time()
-            print("Finished classical fitting:\n It took " + self.get_time(end_time - start_time) + ".\n")
+            print("Finished classical fitting:\n It took " + self.get_time(end_time - start_time) + "\n")
     
     
     
@@ -216,10 +216,10 @@ class ensemble_models():
                     
                 self.models.append(model)
                 end_time_1 = time.time()
-                print("---------------------------------------\n")
-                print("Finished train {} model. It took ".format(o+1) + self.get_time(end_time_1 - start_time_1) + ".\n")
+                print("---------------------------------------------\n")
+                print("Finished train {} model. It took ".format(o+1) + self.get_time(end_time_1 - start_time_1) + "\n")
             end_time = time.time()
-            print("Finished machine learning:\n It took " + self.get_time(end_time - start_time) + ".\n")
+            print("Finished machine learning:\n It took " + self.get_time(end_time - start_time) + "\n")
             
             
             
@@ -246,7 +246,7 @@ class ensemble_models():
                 self.models.append(estimator)
                 
             end_time = time.time()
-            print("Finished Random forest and XGBOOST:\n It took " + self.get_time(end_time - start_time) + ".\n")
+            print("Finished Random forest and XGBOOST:\n It took " + self.get_time(end_time - start_time) + "\n")
             
                 
                 
@@ -255,7 +255,7 @@ class ensemble_models():
                 
       
     
-    def predict(self, classic_data = None, net_data = None, method = "mean"):
+    def predict(self, classic_data = None, net_data = None):
         prediction = []
         for i in range(self.n_classics):
             X_predicted,_, prob_result = self.models[i].predict(classic_data)
@@ -288,7 +288,7 @@ class ensemble_models():
             
             
             
-        return prediction, self.make_prediction(prediction, method = method)
+        return prediction, self.make_prediction(prediction)
                 
     
     
@@ -354,23 +354,14 @@ class ensemble_models():
                 
                 
             
-    def make_prediction(self, prediction, method = "mean"):
+    def make_prediction(self, prediction):
         final = np.zeros(len(prediction[0]))
         prediction = np.array(prediction)
         size = len(prediction[0])
         prediction = prediction.T
-        if method == "mean":
-            for i in range(size):
-                final[i] = self.clear_ans(prediction[i])
-        if method == "cluster":      
-            for i, vec in enumerate(prediction):
-                ms = MeanShift(bandwidth=0.0005)
-                sam = vec.reshape(-1, 1)
-                ms.fit(sam)
-                a = ms.predict(sam)
-                unique, counts = np.unique(a, return_counts=True)
-                cluster = unique[np.where(counts == counts.max())[0][0]]
-                final[i] = vec[a == cluster].mean()
+        for i in range(size):
+            final[i] = self.clear_ans(prediction[i])
+        
         return final
                 
       
