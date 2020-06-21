@@ -256,7 +256,11 @@ class ensemble_models():
       
     
 <<<<<<< HEAD
+<<<<<<< HEAD
     def predict(self, classic_data = None, net_data = None):
+=======
+    def predict(self, classic_data = None, net_data = None, method = "mean"):
+>>>>>>> parent of 6a1888e... 1
 =======
     def predict(self, classic_data = None, net_data = None, method = "mean"):
 >>>>>>> parent of 6a1888e... 1
@@ -293,7 +297,11 @@ class ensemble_models():
             
             
 <<<<<<< HEAD
+<<<<<<< HEAD
         return prediction, self.make_prediction(prediction)
+=======
+        return prediction, self.make_prediction(prediction, method = method)
+>>>>>>> parent of 6a1888e... 1
 =======
         return prediction, self.make_prediction(prediction, method = method)
 >>>>>>> parent of 6a1888e... 1
@@ -363,7 +371,11 @@ class ensemble_models():
                 
             
 <<<<<<< HEAD
+<<<<<<< HEAD
     def make_prediction(self, prediction):
+=======
+    def make_prediction(self, prediction, method = "mean"):
+>>>>>>> parent of 6a1888e... 1
 =======
     def make_prediction(self, prediction, method = "mean"):
 >>>>>>> parent of 6a1888e... 1
