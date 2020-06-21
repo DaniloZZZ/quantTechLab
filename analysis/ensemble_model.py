@@ -255,7 +255,11 @@ class ensemble_models():
                 
       
     
+<<<<<<< HEAD
     def predict(self, classic_data = None, net_data = None):
+=======
+    def predict(self, classic_data = None, net_data = None, method = "mean"):
+>>>>>>> parent of 6a1888e... 1
         prediction = []
         for i in range(self.n_classics):
             X_predicted,_, prob_result = self.models[i].predict(classic_data)
@@ -288,7 +292,11 @@ class ensemble_models():
             
             
             
+<<<<<<< HEAD
         return prediction, self.make_prediction(prediction)
+=======
+        return prediction, self.make_prediction(prediction, method = method)
+>>>>>>> parent of 6a1888e... 1
                 
     
     
@@ -354,14 +362,33 @@ class ensemble_models():
                 
                 
             
+<<<<<<< HEAD
     def make_prediction(self, prediction):
+=======
+    def make_prediction(self, prediction, method = "mean"):
+>>>>>>> parent of 6a1888e... 1
         final = np.zeros(len(prediction[0]))
         prediction = np.array(prediction)
         size = len(prediction[0])
         prediction = prediction.T
+<<<<<<< HEAD
         for i in range(size):
             final[i] = self.clear_ans(prediction[i])
         
+=======
+        if method == "mean":
+            for i in range(size):
+                final[i] = self.clear_ans(prediction[i])
+        if method == "cluster":      
+            for i, vec in enumerate(prediction):
+                ms = MeanShift(bandwidth=0.0005)
+                sam = vec.reshape(-1, 1)
+                ms.fit(sam)
+                a = ms.predict(sam)
+                unique, counts = np.unique(a, return_counts=True)
+                cluster = unique[np.where(counts == counts.max())[0][0]]
+                final[i] = vec[a == cluster].mean()
+>>>>>>> parent of 6a1888e... 1
         return final
                 
       
